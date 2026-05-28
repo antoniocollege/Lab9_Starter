@@ -47,6 +47,14 @@
       width: 122px;
     }
   </style>
+	<script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+	<script>
+	  window.TrackJS && TrackJS.install({ 
+		token: "16230051b87047edb2fab8cedc3a6b26"
+		// for more configuration options, see https://docs.trackjs.com
+	  });
+	</script>
+
 </head>
 
 <body>
@@ -86,7 +94,6 @@
       <button>Trigger a Global Error</button>
     </section>
   </main>
-
   <script>
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
@@ -100,8 +107,98 @@
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
 
-    // Start your code here
-    // You may move this JS to another file if you wish
+	class InputError extends Error {
+	  constructor(message){
+		super(message);
+		this.name = "InputError";
+	  }
+	}
+
+	form.addEventListener("submit", e => {
+	  e.preventDefault();
+	  let output = document.querySelector("output");
+
+	  try {
+		let num1 = document.querySelector("#first-num").value;
+		let num2 = document.querySelector("#second-num").value;
+		let op = document.querySelector("#operator").value;
+
+		if(num1 === "" || num2 === ""){
+		  throw new InputError("Fill in both boxes");
+		}
+
+		if(isNaN(num1) || isNaN(num2)){
+		  throw new InputError("Only numbers allowed");
+		}
+
+		num1 = Number(num1);
+		num2 = Number(num2);
+
+		if(op === "/" && num2 === 0){
+		  throw new InputError("Can't divide by 0");
+		}
+		output.textContent = eval(`${num1} ${op} ${num2}`);
+	  }
+	  catch(error){
+		output.textContent = error.message;
+		console.error(error);
+	  }
+	  finally{
+		console.log("Calculator finished");
+	  }
+	});
+
+
+	errorBtns.forEach(button => {
+	  button.addEventListener("click", e => {
+		e.preventDefault();
+		let text = button.textContent;
+		if(text === "Console Log"){
+		  console.log("hello");
+		} else if(text === "Console Error"){
+		  console.error("error example");
+		} else if(text === "Console Count"){
+		  console.count("clicked");
+		} else if(text === "Console Warn"){
+		  console.warn("warning");
+		} else if(text === "Console Assert"){
+		  console.assert(2 > 5,"2 is not bigger than 5");
+		} else if(text === "Console Clear"){
+		  console.clear();
+		} else if(text === "Console Dir"){
+		  console.dir(document.body);
+		} else if(text === "Console dirxml"){
+		  console.dirxml(document.body);
+		} else if(text === "Console Group Start"){
+		  console.group("Group");
+		  console.log("first");
+		  console.log("second");
+		} else if(text === "Console Group End"){
+		  console.groupEnd();
+		} else if(text === "Console Table"){
+		  console.table([
+			{name:"Bob", grade:80},
+			{name:"Joe", grade:90}
+		  ]);
+		} else if(text === "Start Timer"){
+		  console.time("test");
+		} else if(text === "End Timer"){
+		  console.timeEnd("test");
+		} else if(text === "Console Trace"){
+		  test();
+		} else if(text === "Trigger a Global Error"){
+		  fakeFunction();
+		}
+	  });
+	});
+
+	function test(){
+	  console.trace();
+	}
+
+	window.onerror = function(){
+	  console.log("Global error caught");
+	};
   </script>
 </body>
 
